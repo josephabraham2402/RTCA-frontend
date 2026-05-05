@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Search, Plus, Filter, Settings, ChevronDown } from 'lucide-react';
 import { mockChats } from '../../mockData';
 
-const HomeSidebar = ({ activeChat, setActiveChat, friends = [] }) => {
+const HomeSidebar = ({ activeChat, setActiveChat, friends = [], onlineUsers, unreadCounts }) => {
   const [filter, setFilter] = useState('All');
   const [searchTerm, setSearchTerm] = useState('');
 
@@ -82,12 +82,20 @@ const HomeSidebar = ({ activeChat, setActiveChat, friends = [] }) => {
             >
               <div className="relative">
                 <img src={friend.avatar} alt={friend.name} className="h-10 w-10 rounded-full object-cover bg-gray-200" />
+                {onlineUsers?.has(friend.id) && (
+                  <div className="absolute bottom-0 right-0 h-3 w-3 rounded-full bg-green-500 border-2 border-white"></div>
+                )}
               </div>
               <div className="ml-3 flex-1 min-w-0">
                 <div className="flex items-center justify-between mb-0.5">
                   <h4 className="text-sm font-semibold text-gray-900 truncate">{friend.name}</h4>
+                  {unreadCounts?.[friend.id] > 0 && (
+                    <span className="bg-brand-primary text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full">
+                      {unreadCounts[friend.id]}
+                    </span>
+                  )}
                 </div>
-                <p className="text-xs truncate text-gray-500">
+                <p className={`text-xs truncate ${unreadCounts?.[friend.id] > 0 ? 'text-gray-900 font-medium' : 'text-gray-500'}`}>
                   {friend.username}
                 </p>
               </div>

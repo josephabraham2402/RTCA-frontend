@@ -13,6 +13,16 @@ const Home = () => {
   const [isAddingChat, setIsAddingChat] = useState(false);
   const [friendRequests, setFriendRequests] = useState([]);
   const [friends, setFriends] = useState([]);
+  const [onlineUsers, setOnlineUsers] = useState(new Set());
+  const [unreadCounts, setUnreadCounts] = useState({});
+  const activeChatRef = React.useRef(null);
+
+  useEffect(() => {
+    activeChatRef.current = activeChat;
+    if (activeChat) {
+      setUnreadCounts(prev => ({ ...prev, [activeChat.id]: 0 }));
+    }
+  }, [activeChat]);
 
   useEffect(() => {
     const fetchInitialData = async () => {
@@ -50,12 +60,37 @@ const Home = () => {
       });
     };
 
+    const handleOnlineUsers = (users) => setOnlineUsers(new Set(users));
+    const handleUserOnline = (userId) => setOnlineUsers(prev => new Set([...prev, userId]));
+    const handleUserOffline = (userId) => {
+      setOnlineUsers(prev => {
+        const next = new Set(prev);
+        next.delete(userId);
+        return next;
+      });
+    };
+
+    const handleReceiveMessage = (msg) => {
+      const currentActiveChatId = activeChatRef.current?.id;
+      if (currentActiveChatId !== msg.sender) {
+         setUnreadCounts(prev => ({ ...prev, [msg.sender]: (prev[msg.sender] || 0) + 1 }));
+      }
+    };
+
     socket.on('newFriendRequest', handleNewRequest);
     socket.on('friendRequestAccepted', handleFriendRequestAccepted);
+    socket.on('online_users', handleOnlineUsers);
+    socket.on('user_online', handleUserOnline);
+    socket.on('user_offline', handleUserOffline);
+    socket.on('receive_message', handleReceiveMessage);
 
     return () => {
       socket.off('newFriendRequest', handleNewRequest);
       socket.off('friendRequestAccepted', handleFriendRequestAccepted);
+      socket.off('online_users', handleOnlineUsers);
+      socket.off('user_online', handleUserOnline);
+      socket.off('user_offline', handleUserOffline);
+      socket.off('receive_message', handleReceiveMessage);
     };
   }, []);
 
@@ -88,11 +123,17 @@ const Home = () => {
 
   return (
     <div className="flex h-screen w-full overflow-hidden bg-white font-sans text-gray-900">
-      <HomeSidebar activeChat={activeChat} setActiveChat={handleSidebarChatClick} friends={friends} />
+      <HomeSidebar 
+        activeChat={activeChat} 
+        setActiveChat={handleSidebarChatClick} 
+        friends={friends} 
+        onlineUsers={onlineUsers}
+        unreadCounts={unreadCounts}
+      />
       
       {activeChat ? (
         <>
-          <ActiveChat activeChat={activeChat} />
+          <ActiveChat activeChat={activeChat} isOnline={onlineUsers.has(activeChat.id)} />
           <ChatDetailsSidebar activeChat={activeChat} onClose={() => setActiveChat(null)} />
         </>
       ) : isAddingChat ? (
