@@ -1,0 +1,87 @@
+import React, { useState } from 'react';
+import { Search, Plus, Filter, Settings, ChevronDown } from 'lucide-react';
+import { mockChats } from '../../mockData';
+
+const HomeSidebar = ({ activeChat, setActiveChat, friends = [] }) => {
+  const [filter, setFilter] = useState('All');
+
+  return (
+    <div className="w-80 bg-white flex flex-col h-full border-r border-gray-100 flex-shrink-0">
+      {/* Header Search */}
+      <div className="p-4 border-b border-gray-100">
+        <div className="relative">
+          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+            <Search className="h-4 w-4 text-gray-400" />
+          </div>
+          <input
+            type="text"
+            placeholder="Search chats..."
+            className="w-full pl-10 pr-10 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-1 focus:ring-brand-primary focus:border-brand-primary transition-all"
+          />
+          <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+            <span className="text-xs text-gray-400 font-medium border border-gray-200 rounded px-1">⌘K</span>
+          </div>
+        </div>
+      </div>
+
+      {/* Tabs / Filters */}
+      <div className="px-4 py-3 flex items-center justify-between">
+        <div className="flex space-x-2">
+          {['All', 'Chats', 'Groups'].map(f => (
+            <button
+              key={f}
+              onClick={() => setFilter(f)}
+              className={`px-3 py-1 text-xs font-medium rounded-full transition-colors cursor-pointer ${filter === f ? 'bg-brand-primary text-white' : 'bg-white border border-gray-200 text-gray-600 hover:bg-gray-50'}`}
+            >
+              {f}
+            </button>
+          ))}
+        </div>
+        <button className="text-gray-400 hover:text-gray-600 transition-colors cursor-pointer">
+          <Filter className="h-4 w-4" />
+        </button>
+      </div>
+
+      {/* List Header */}
+      <div className="px-4 py-2 flex items-center justify-between text-xs font-semibold text-gray-400 uppercase tracking-wider mt-2">
+        <span>Friends / Groups</span>
+        <button className="hover:text-brand-primary transition-colors cursor-pointer text-gray-400">
+          <Plus className="h-4 w-4" />
+        </button>
+      </div>
+
+      {/* Chat List */}
+      <div className="flex-1 overflow-y-auto custom-scrollbar mt-1">
+        {friends.length === 0 ? (
+          <div className="flex flex-col items-center justify-center h-40 text-gray-400 text-sm px-6 text-center">
+            <p>No friends available.</p>
+            <p className="mt-1 text-xs">Click "New Chat" to find and add friends!</p>
+          </div>
+        ) : (
+          friends.map(friend => (
+            <div
+              key={friend.id}
+              onClick={() => setActiveChat(friend)}
+              className={`flex items-center px-4 py-3 cursor-pointer transition-colors relative group ${activeChat?.id === friend.id ? 'bg-brand-primary/5 border-l-4 border-brand-primary pl-3' : 'hover:bg-gray-50 border-l-4 border-transparent pl-3'}`}
+            >
+              <div className="relative">
+                <img src={friend.avatar} alt={friend.name} className="h-10 w-10 rounded-full object-cover bg-gray-200" />
+              </div>
+              <div className="ml-3 flex-1 min-w-0">
+                <div className="flex items-center justify-between mb-0.5">
+                  <h4 className="text-sm font-semibold text-gray-900 truncate">{friend.name}</h4>
+                </div>
+                <p className="text-xs truncate text-gray-500">
+                  {friend.username}
+                </p>
+              </div>
+            </div>
+          ))
+        )}
+      </div>
+
+    </div>
+  );
+};
+
+export default HomeSidebar;
