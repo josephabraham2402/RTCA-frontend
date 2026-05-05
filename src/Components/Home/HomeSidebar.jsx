@@ -4,6 +4,19 @@ import { mockChats } from '../../mockData';
 
 const HomeSidebar = ({ activeChat, setActiveChat, friends = [] }) => {
   const [filter, setFilter] = useState('All');
+  const [searchTerm, setSearchTerm] = useState('');
+
+  const filteredFriends = friends.filter(friend => {
+    if (!friend) return false;
+    
+    const isGroup = friend.isGroup === true;
+    if (filter === 'Friends' && isGroup) return false;
+    if (filter === 'Groups' && !isGroup) return false;
+
+    const nameMatch = friend.name?.toLowerCase().includes(searchTerm.toLowerCase()) || false;
+    const usernameMatch = friend.username?.toLowerCase().includes(searchTerm.toLowerCase()) || false;
+    return nameMatch || usernameMatch;
+  });
 
   return (
     <div className="w-80 bg-white flex flex-col h-full border-r border-gray-100 flex-shrink-0">
@@ -16,6 +29,8 @@ const HomeSidebar = ({ activeChat, setActiveChat, friends = [] }) => {
           <input
             type="text"
             placeholder="Search chats..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
             className="w-full pl-10 pr-10 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-1 focus:ring-brand-primary focus:border-brand-primary transition-all"
           />
           <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
@@ -27,7 +42,7 @@ const HomeSidebar = ({ activeChat, setActiveChat, friends = [] }) => {
       {/* Tabs / Filters */}
       <div className="px-4 py-3 flex items-center justify-between">
         <div className="flex space-x-2">
-          {['All', 'Chats', 'Groups'].map(f => (
+          {['All', 'Friends', 'Groups'].map(f => (
             <button
               key={f}
               onClick={() => setFilter(f)}
@@ -37,28 +52,29 @@ const HomeSidebar = ({ activeChat, setActiveChat, friends = [] }) => {
             </button>
           ))}
         </div>
-        <button className="text-gray-400 hover:text-gray-600 transition-colors cursor-pointer">
-          <Filter className="h-4 w-4" />
-        </button>
+        
       </div>
 
       {/* List Header */}
       <div className="px-4 py-2 flex items-center justify-between text-xs font-semibold text-gray-400 uppercase tracking-wider mt-2">
         <span>Friends / Groups</span>
-        <button className="hover:text-brand-primary transition-colors cursor-pointer text-gray-400">
-          <Plus className="h-4 w-4" />
-        </button>
       </div>
 
       {/* Chat List */}
       <div className="flex-1 overflow-y-auto custom-scrollbar mt-1">
-        {friends.length === 0 ? (
+        {filteredFriends.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-40 text-gray-400 text-sm px-6 text-center">
-            <p>No friends available.</p>
-            <p className="mt-1 text-xs">Click "New Chat" to find and add friends!</p>
+            <p>
+              {searchTerm 
+                ? `No ${filter === 'Groups' ? 'groups' : filter === 'Friends' ? 'friends' : 'chats'} found matching your search.` 
+                : `No ${filter === 'Groups' ? 'groups' : filter === 'Friends' ? 'friends' : 'chats'} available.`}
+            </p>
+            {!searchTerm && filter !== 'Groups' && (
+              <p className="mt-1 text-xs">Click "New Chat" to find and add friends!</p>
+            )}
           </div>
         ) : (
-          friends.map(friend => (
+          filteredFriends.map(friend => (
             <div
               key={friend.id}
               onClick={() => setActiveChat(friend)}

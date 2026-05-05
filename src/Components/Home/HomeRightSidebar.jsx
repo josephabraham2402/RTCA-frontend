@@ -17,7 +17,7 @@ const HomeRightSidebar = ({ friendRequests, onNewChatClick, onRespondRequest }) 
         </div>
         <div className="flex items-center space-x-4 text-sm text-gray-600 font-medium">
           <button className="flex items-center hover:text-brand-primary transition-colors cursor-pointer">
-            <Bell className="h-4 w-4 mr-1" />
+            <Bell className="h-4 w-4 mr-1 mt-1" />
             <span>Notifications</span>
           </button>
           <div className="w-px h-4 bg-gray-300"></div>
@@ -40,36 +40,44 @@ const HomeRightSidebar = ({ friendRequests, onNewChatClick, onRespondRequest }) 
           </div>
           
           <div className="space-y-4">
-            {friendRequests.map(req => (
-              <div key={req.id} className="flex items-center justify-between">
-                <div className="flex items-center">
-                  <img src={req.avatar} alt={req.name} className="h-10 w-10 rounded-full object-cover" />
-                  <div className="ml-3">
-                    <h4 className="text-sm font-medium text-gray-900">{req.name}</h4>
+            {friendRequests.length === 0 ? (
+              <div className="text-center py-6 text-sm text-gray-400">
+                No new friend requests.
+              </div>
+            ) : (
+              friendRequests.map(req => (
+                <div key={req.id} className="flex items-center justify-between">
+                  <div className="flex items-center">
+                    <img src={req.avatar} alt={req.name} className="h-10 w-10 rounded-full object-cover" />
+                    <div className="ml-3">
+                      <h4 className="text-sm font-medium text-gray-900">{req.name}</h4>
+                    </div>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <button 
+                      onClick={() => onRespondRequest(req.id, 'accept')}
+                      className="h-7 w-7 rounded-full bg-green-100 text-green-600 flex items-center justify-center hover:bg-green-200 transition-colors cursor-pointer"
+                    >
+                      <Check className="h-4 w-4" />
+                    </button>
+                    <button 
+                      onClick={() => onRespondRequest(req.id, 'reject')}
+                      className="h-7 w-7 rounded-full bg-gray-100 text-gray-500 flex items-center justify-center hover:bg-gray-200 transition-colors cursor-pointer"
+                    >
+                      <X className="h-4 w-4" />
+                    </button>
                   </div>
                 </div>
-                <div className="flex items-center space-x-2">
-                  <button 
-                    onClick={() => onRespondRequest(req.id, 'accept')}
-                    className="h-7 w-7 rounded-full bg-green-100 text-green-600 flex items-center justify-center hover:bg-green-200 transition-colors cursor-pointer"
-                  >
-                    <Check className="h-4 w-4" />
-                  </button>
-                  <button 
-                    onClick={() => onRespondRequest(req.id, 'reject')}
-                    className="h-7 w-7 rounded-full bg-gray-100 text-gray-500 flex items-center justify-center hover:bg-gray-200 transition-colors cursor-pointer"
-                  >
-                    <X className="h-4 w-4" />
-                  </button>
-                </div>
-              </div>
-            ))}
+              ))
+            )}
           </div>
           
-          <button className="mt-5 text-sm text-brand-primary hover:text-[#6853e0] font-medium flex items-center transition-colors cursor-pointer w-full justify-between">
-            <span>View all requests</span>
-            <ChevronRight className="h-4 w-4" />
-          </button>
+          {friendRequests.length > 0 && (
+            <button className="mt-5 text-sm text-brand-primary hover:text-[#6853e0] font-medium flex items-center transition-colors cursor-pointer w-full justify-between">
+              <span>View all requests</span>
+              <ChevronRight className="h-4 w-4" />
+            </button>
+          )}
         </div>
 
         {/* Call Logs */}
