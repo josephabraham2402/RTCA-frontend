@@ -83,6 +83,67 @@ const UserService = {
       console.error("Error fetching friends:", error);
       throw error;
     }
+  },
+
+  removeFriend: async (friendId) => {
+    try {
+      const response = await fetch(`${API_URL}/friends/${friendId}`, {
+          method: 'DELETE',
+          headers: getHeaders()
+      });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.message);
+      return data;
+    } catch (error) {
+      console.error("Error removing friend:", error);
+      throw error;
+    }
+  },
+
+  blockUser: async (userId) => {
+    try {
+      const response = await fetch(`${API_URL}/block`, {
+          method: 'POST',
+          headers: getHeaders(),
+          body: JSON.stringify({ userId })
+      });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.message);
+      return data;
+    } catch (error) {
+      console.error("Error blocking user:", error);
+      throw error;
+    }
+  },
+
+  getMutedChats: async () => {
+    try {
+      const response = await fetch(`${API_URL}/muted`, {
+          headers: getHeaders()
+      });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.message);
+      return data;
+    } catch (error) {
+      console.error("Error fetching muted chats:", error);
+      throw error;
+    }
+  },
+
+  toggleMute: async (userId) => {
+    try {
+      const response = await fetch(`${API_URL}/mute`, {
+          method: 'POST',
+          headers: getHeaders(),
+          body: JSON.stringify({ userId })
+      });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.message);
+      return data;
+    } catch (error) {
+      console.error("Error toggling mute:", error);
+      throw error;
+    }
   }
 };
 
