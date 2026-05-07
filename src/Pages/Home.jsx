@@ -8,11 +8,26 @@ import ChatDetailsSidebar from '../Components/Home/ChatDetailsSidebar';
 import AddNewChat from '../Components/Home/AddNewChat';
 import UserService from '../Services/UserService';
 import SocketService from '../Services/SocketService';
+import AuthService from '../Services/AuthService';
+
+const formatAvatarUrl = (url) => {
+  if (!url) return '';
+  if (url.startsWith('http')) return url;
+  return `http://localhost:5000${url}`;
+};
 
 const Home = () => {
   const [activeChat, setActiveChat] = useState(() => {
     const saved = sessionStorage.getItem('activeChat');
-    return saved ? JSON.parse(saved) : null;
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved);
+        // Refresh avatar URL just in case
+        parsed.avatar = formatAvatarUrl(parsed.avatar);
+        return parsed;
+      } catch (e) {}
+    }
+    return null;
   });
   const [mediaViewTab, setMediaViewTab] = useState(null);
   const [isSearching, setIsSearching] = useState(false);
@@ -24,6 +39,7 @@ const Home = () => {
   const [unreadCounts, setUnreadCounts] = useState({});
   const activeChatRef = React.useRef(null);
   const mutedChatsRef = React.useRef(mutedChats);
+  const currentUser = AuthService.getCurrentUser();
 
   useEffect(() => {
     activeChatRef.current = activeChat;
@@ -39,13 +55,27 @@ const Home = () => {
   useEffect(() => {
     const fetchInitialData = async () => {
       try {
-        const [requests, fetchedFriends, fetchedMuted] = await Promise.all([
+        const [requests, fetchedFriends, fetchedMuted, fetchedGroups] = await Promise.all([
           UserService.getFriendRequests(),
           UserService.getFriends(),
-          UserService.getMutedChats()
+          UserService.getMutedChats(),
+          UserService.getGroups()
         ]);
+        
+        const formattedGroups = fetchedGroups.map(g => ({
+          ...g,
+          id: g._id || g.id,
+          isGroup: true,
+          avatar: formatAvatarUrl(g.avatar)
+        }));
+
+        const formattedFriends = fetchedFriends.map(f => ({
+          ...f,
+          avatar: formatAvatarUrl(f.avatar)
+        }));
+
         setFriendRequests(requests);
-        setFriends(fetchedFriends);
+        setFriends([...formattedFriends, ...formattedGroups]);
         setMutedChats(fetchedMuted);
       } catch (error) {
         console.error("Failed to load initial data", error);
@@ -86,8 +116,11 @@ const Home = () => {
 
     const handleReceiveMessage = (msg) => {
       const currentActiveChatId = activeChatRef.current?.id;
-      if (currentActiveChatId !== msg.sender && !mutedChatsRef.current.includes(msg.sender)) {
-         setUnreadCounts(prev => ({ ...prev, [msg.sender]: (prev[msg.sender] || 0) + 1 }));
+      const isGroupMessage = msg.receiver !== currentUser.id;
+      const targetId = isGroupMessage ? msg.receiver : msg.sender;
+
+      if (currentActiveChatId !== targetId && !mutedChatsRef.current.includes(targetId)) {
+         setUnreadCounts(prev => ({ ...prev, [targetId]: (prev[targetId] || 0) + 1 }));
       }
     };
 
@@ -126,6 +159,10 @@ const Home = () => {
     } catch (error) {
       console.error("Failed to send friend request", error);
     }
+  };
+
+  const handleGroupCreated = (newGroup) => {
+    setFriends(prev => [...prev, { ...newGroup, id: newGroup._id || newGroup.id, isGroup: true, avatar: formatAvatarUrl(newGroup.avatar) }]);
   };
 
   const handleRespondRequest = async (requestId, status) => {
@@ -234,6 +271,7 @@ const Home = () => {
           <AddNewChat 
             onClose={() => setIsAddingChat(false)} 
             onAddFriend={handleAddFriend}
+            onGroupCreated={handleGroupCreated}
             existingRequests={friendRequests}
           />
           <HomeRightSidebar 

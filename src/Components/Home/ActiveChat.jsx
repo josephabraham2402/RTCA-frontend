@@ -70,20 +70,22 @@ const ActiveChat = ({ activeChat, isOnline, isSearching, onCloseSearch, onCloseC
     const socket = SocketService.getSocket();
 
     const handleReceiveMessage = (msg) => {
-      if (msg.sender === activeChat.id || msg.receiver === activeChat.id) {
+      const isForActiveGroup = activeChat.isGroup && msg.receiver === activeChat.id;
+      const isForActivePrivate = !activeChat.isGroup && msg.sender === activeChat.id && msg.receiver === currentUser.id;
+
+      if (isForActiveGroup || isForActivePrivate) {
         setMessages(prev => {
           if (prev.find(m => m._id === msg._id)) return prev;
           return [...prev, msg];
         });
 
-        if (msg.sender === activeChat.id) {
-          MessageService.markAsSeen([msg._id], activeChat.id);
-          socket.emit('mark_seen', {
-            messageIds: [msg._id],
-            senderId: activeChat.id,
-            receiverId: currentUser.id
-          });
-        }
+        // Always mark as seen if it matches the active chat
+        MessageService.markAsSeen([msg._id], activeChat.id);
+        socket.emit('mark_seen', {
+          messageIds: [msg._id],
+          senderId: activeChat.id,
+          receiverId: currentUser.id
+        });
       }
     };
 
@@ -139,7 +141,7 @@ const ActiveChat = ({ activeChat, isOnline, isSearching, onCloseSearch, onCloseC
     const socket = SocketService.getSocket();
 
     if (editingMessageId) {
-      const encryptedText = inputText.trim() ? encryptMessage(inputText.trim(), currentUser.id, activeChat.id) : '';
+      const encryptedText = inputText.trim() ? encryptMessage(inputText.trim(), activeChat.isGroup ? activeChat.id : currentUser.id, activeChat.isGroup ? activeChat.id : activeChat.id) : '';
       socket.emit('edit_message', {
         messageId: editingMessageId,
         newText: encryptedText,
@@ -168,7 +170,7 @@ const ActiveChat = ({ activeChat, isOnline, isSearching, onCloseSearch, onCloseC
       }
     }
 
-    const encryptedText = inputText.trim() ? encryptMessage(inputText.trim(), currentUser.id, activeChat.id) : '';
+    const encryptedText = inputText.trim() ? encryptMessage(inputText.trim(), activeChat.isGroup ? activeChat.id : currentUser.id, activeChat.isGroup ? activeChat.id : activeChat.id) : '';
 
     socket.emit('send_message', {
       sender: currentUser.id,
@@ -184,7 +186,7 @@ const ActiveChat = ({ activeChat, isOnline, isSearching, onCloseSearch, onCloseC
   };
 
   const handleEditClick = (msg) => {
-    const decrypted = msg.text ? decryptMessage(msg.text, currentUser.id, activeChat.id) : '';
+    const decrypted = msg.text ? decryptMessage(msg.text, activeChat.isGroup ? activeChat.id : currentUser.id, activeChat.isGroup ? activeChat.id : activeChat.id) : '';
     setInputText(decrypted);
     setEditingMessageId(msg._id);
   };
@@ -312,7 +314,7 @@ const ActiveChat = ({ activeChat, isOnline, isSearching, onCloseSearch, onCloseC
               let decrypted = '';
               if (msg.text) {
                 try {
-                  decrypted = decryptMessage(msg.text, currentUser.id, activeChat.id);
+                  decrypted = decryptMessage(msg.text, activeChat.isGroup ? activeChat.id : currentUser.id, activeChat.isGroup ? activeChat.id : activeChat.id);
                 } catch(e) {}
               }
               const q = searchQuery.toLowerCase();
@@ -363,7 +365,7 @@ const ActiveChat = ({ activeChat, isOnline, isSearching, onCloseSearch, onCloseC
                       ) : null}
                       {msg.text && (
                         <p className={`text-sm ${isMine ? 'text-white' : 'text-gray-800'}`}>
-                          {decryptMessage(msg.text, currentUser.id, activeChat.id)}
+                          {decryptMessage(msg.text, activeChat.isGroup ? activeChat.id : currentUser.id, activeChat.isGroup ? activeChat.id : activeChat.id)}
                         </p>
                       )}
                     </>

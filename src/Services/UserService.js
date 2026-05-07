@@ -144,6 +144,36 @@ const UserService = {
       console.error("Error toggling mute:", error);
       throw error;
     }
+  },
+
+  createGroup: async (groupData) => {
+    try {
+      const response = await fetch('http://localhost:5000/api/groups', {
+          method: 'POST',
+          headers: getHeaders(),
+          body: JSON.stringify(groupData)
+      });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.message);
+      return data;
+    } catch (error) {
+      console.error("Error creating group:", error);
+      throw error;
+    }
+  },
+
+  getGroups: async () => {
+    try {
+      const response = await fetch('http://localhost:5000/api/groups', {
+          headers: getHeaders()
+      });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.message);
+      return data;
+    } catch (error) {
+      console.error("Error fetching groups:", error);
+      throw error;
+    }
   }
 };
 
