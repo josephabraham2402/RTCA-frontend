@@ -17,11 +17,6 @@ const HomeRightSidebar = ({ friendRequests, onNewChatClick, onRespondRequest }) 
         </div>
         <div className="flex items-center space-x-4 text-sm text-gray-600 font-medium">
           <button className="flex items-center hover:text-brand-primary transition-colors cursor-pointer">
-            <Bell className="h-4 w-4 mr-1 mt-1" />
-            <span>Notifications</span>
-          </button>
-          <div className="w-px h-4 bg-gray-300"></div>
-          <button className="flex items-center hover:text-brand-primary transition-colors cursor-pointer">
             <Settings className="h-4 w-4 mr-1" />
             <span>Settings</span>
           </button>

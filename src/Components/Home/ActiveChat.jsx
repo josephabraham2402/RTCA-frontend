@@ -5,12 +5,14 @@ import MessageService from '../../Services/MessageService';
 import SocketService from '../../Services/SocketService';
 import AuthService from '../../Services/AuthService';
 import { encryptMessage, decryptMessage } from '../../utils/encryption';
+import ManageMembersModal from './ManageMembersModal';
 
-const ActiveChat = ({ activeChat, isOnline, isSearching, onCloseSearch, onCloseChat, onRemoveFriend, onBlockUser }) => {
+const ActiveChat = ({ activeChat, isOnline, isSearching, onCloseSearch, onCloseChat, onRemoveFriend, onBlockUser, onDeleteGroup, friends, onUpdateGroup }) => {
   const [messages, setMessages] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [inputText, setInputText] = useState('');
   const [showMenu, setShowMenu] = useState(false);
+  const [showManageMembersModal, setShowManageMembersModal] = useState(false);
   const [confirmAction, setConfirmAction] = useState(null);
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const [selectedFile, setSelectedFile] = useState(null);
@@ -254,24 +256,51 @@ const ActiveChat = ({ activeChat, isOnline, isSearching, onCloseSearch, onCloseC
                 >
                   Close Chat
                 </button>
-                <button 
-                  onClick={() => {
-                    setShowMenu(false);
-                    setConfirmAction({ type: 'remove', title: 'Remove Friend', message: 'Are you sure you want to remove this friend from your list?' });
-                  }}
-                  className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors"
-                >
-                  Remove Friend
-                </button>
-                <button 
-                  onClick={() => {
-                    setShowMenu(false);
-                    setConfirmAction({ type: 'block', title: 'Block User', message: 'Are you sure you want to block this user? They will no longer be able to message you.' });
-                  }}
-                  className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors"
-                >
-                  Block User
-                </button>
+                {activeChat.isGroup ? (
+                  <>
+                    <button 
+                      onClick={() => {
+                        setShowMenu(false);
+                        setShowManageMembersModal(true);
+                      }}
+                      className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                    >
+                      Manage Members
+                    </button>
+                    {(activeChat.admin === currentUser.id || activeChat.admin?._id === currentUser.id) && (
+                      <button 
+                        onClick={() => {
+                          setShowMenu(false);
+                          setConfirmAction({ type: 'deleteGroup', title: 'Delete Group', message: 'Are you sure you want to delete this group? This action cannot be undone and will delete all messages.' });
+                        }}
+                        className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors"
+                      >
+                        Delete Group
+                      </button>
+                    )}
+                  </>
+                ) : (
+                  <>
+                    <button 
+                      onClick={() => {
+                        setShowMenu(false);
+                        setConfirmAction({ type: 'remove', title: 'Remove Friend', message: 'Are you sure you want to remove this friend from your list?' });
+                      }}
+                      className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors"
+                    >
+                      Remove Friend
+                    </button>
+                    <button 
+                      onClick={() => {
+                        setShowMenu(false);
+                        setConfirmAction({ type: 'block', title: 'Block User', message: 'Are you sure you want to block this user? They will no longer be able to message you.' });
+                      }}
+                      className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors"
+                    >
+                      Block User
+                    </button>
+                  </>
+                )}
               </div>
             )}
           </div>
@@ -488,6 +517,8 @@ const ActiveChat = ({ activeChat, isOnline, isSearching, onCloseSearch, onCloseC
                     onRemoveFriend();
                   } else if (confirmAction.type === 'block' && onBlockUser) {
                     onBlockUser();
+                  } else if (confirmAction.type === 'deleteGroup' && onDeleteGroup) {
+                    onDeleteGroup();
                   }
                   setConfirmAction(null);
                 }}
@@ -498,6 +529,16 @@ const ActiveChat = ({ activeChat, isOnline, isSearching, onCloseSearch, onCloseC
             </div>
           </div>
         </div>
+      )}
+
+      {showManageMembersModal && (
+        <ManageMembersModal 
+          activeChat={activeChat}
+          friends={friends}
+          onClose={() => setShowManageMembersModal(false)}
+          onUpdateGroup={onUpdateGroup}
+          currentUser={currentUser}
+        />
       )}
     </div>
   );

@@ -174,6 +174,52 @@ const UserService = {
       console.error("Error fetching groups:", error);
       throw error;
     }
+  },
+
+  deleteGroup: async (groupId) => {
+    try {
+      const response = await fetch(`http://localhost:5000/api/groups/${groupId}`, {
+          method: 'DELETE',
+          headers: getHeaders()
+      });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.message);
+      return data;
+    } catch (error) {
+      console.error("Error deleting group:", error);
+      throw error;
+    }
+  },
+
+  addGroupMembers: async (groupId, members) => {
+    try {
+      const response = await fetch(`http://localhost:5000/api/groups/${groupId}/members`, {
+          method: 'POST',
+          headers: getHeaders(),
+          body: JSON.stringify({ members })
+      });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.message);
+      return data;
+    } catch (error) {
+      console.error("Error adding members:", error);
+      throw error;
+    }
+  },
+
+  removeGroupMember: async (groupId, memberId) => {
+    try {
+      const response = await fetch(`http://localhost:5000/api/groups/${groupId}/members/${memberId}`, {
+          method: 'DELETE',
+          headers: getHeaders()
+      });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.message);
+      return data;
+    } catch (error) {
+      console.error("Error removing member:", error);
+      throw error;
+    }
   }
 };
 

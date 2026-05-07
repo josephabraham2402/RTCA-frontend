@@ -218,6 +218,33 @@ const Home = () => {
     }
   };
 
+  const handleDeleteGroup = async (groupId) => {
+    try {
+      await UserService.deleteGroup(groupId);
+      setFriends(prev => prev.filter(f => f.id !== groupId));
+      if (activeChat?.id === groupId) {
+        handleSetActiveChat(null);
+      }
+    } catch (error) {
+      console.error("Failed to delete group", error);
+    }
+  };
+
+  const handleUpdateGroup = (updatedGroup) => {
+    const formatted = {
+      ...updatedGroup,
+      id: updatedGroup._id || updatedGroup.id,
+      isGroup: true,
+      avatar: formatAvatarUrl(updatedGroup.avatar)
+    };
+    
+    setFriends(prev => prev.map(f => f.id === formatted.id ? formatted : f));
+    if (activeChat?.id === formatted.id) {
+      setActiveChat(formatted);
+      sessionStorage.setItem('activeChat', JSON.stringify(formatted));
+    }
+  };
+
   const handleToggleMute = async (chatId) => {
     try {
       const data = await UserService.toggleMute(chatId);
@@ -254,6 +281,9 @@ const Home = () => {
               onCloseChat={() => handleSetActiveChat(null)}
               onRemoveFriend={() => handleRemoveFriend(activeChat.id)}
               onBlockUser={() => handleBlockUser(activeChat.id)}
+              onDeleteGroup={() => handleDeleteGroup(activeChat.id)}
+              friends={friends.filter(f => !f.isGroup)}
+              onUpdateGroup={handleUpdateGroup}
             />
           )}
           <ChatDetailsSidebar 
