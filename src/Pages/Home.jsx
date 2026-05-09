@@ -6,6 +6,7 @@ import ActiveChat from '../Components/Home/ActiveChat';
 import SharedMediaView from '../Components/Home/SharedMediaView';
 import ChatDetailsSidebar from '../Components/Home/ChatDetailsSidebar';
 import AddNewChat from '../Components/Home/AddNewChat';
+import UserSettings from '../Components/Home/UserSettings';
 import UserService from '../Services/UserService';
 import SocketService from '../Services/SocketService';
 import AuthService from '../Services/AuthService';
@@ -33,6 +34,7 @@ const Home = () => {
   const [isSearching, setIsSearching] = useState(false);
   const [mutedChats, setMutedChats] = useState([]);
   const [isAddingChat, setIsAddingChat] = useState(false);
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [friendRequests, setFriendRequests] = useState([]);
   const [friends, setFriends] = useState([]);
   const [onlineUsers, setOnlineUsers] = useState(new Set());
@@ -74,7 +76,12 @@ const Home = () => {
           avatar: formatAvatarUrl(f.avatar)
         }));
 
-        setFriendRequests(requests);
+        const formattedRequests = requests.map(req => ({
+          ...req,
+          avatar: formatAvatarUrl(req.avatar)
+        }));
+
+        setFriendRequests(formattedRequests);
         setFriends([...formattedFriends, ...formattedGroups]);
         setMutedChats(fetchedMuted);
       } catch (error) {
@@ -87,18 +94,20 @@ const Home = () => {
     const socket = SocketService.connect();
     
     const handleNewRequest = (newRequest) => {
+      const formattedRequest = { ...newRequest, avatar: formatAvatarUrl(newRequest.avatar) };
       setFriendRequests(prevRequests => {
-        if (!prevRequests.some(req => req.id === newRequest.id)) {
-          return [newRequest, ...prevRequests];
+        if (!prevRequests.some(req => req.id === formattedRequest.id)) {
+          return [formattedRequest, ...prevRequests];
         }
         return prevRequests;
       });
     };
 
     const handleFriendRequestAccepted = (newFriend) => {
+      const formattedFriend = { ...newFriend, avatar: formatAvatarUrl(newFriend.avatar) };
       setFriends(prev => {
-        if (!prev.some(f => f.id === newFriend.id)) {
-          return [...prev, newFriend];
+        if (!prev.some(f => f.id === formattedFriend.id)) {
+          return [...prev, formattedFriend];
         }
         return prev;
       });
@@ -183,6 +192,7 @@ const Home = () => {
     setMediaViewTab(null);
     setIsSearching(false);
     if (chat) {
+      setIsSettingsOpen(false);
       sessionStorage.setItem('activeChat', JSON.stringify(chat));
     } else {
       sessionStorage.removeItem('activeChat');
@@ -296,6 +306,19 @@ const Home = () => {
             onViewMedia={(tab) => setMediaViewTab(tab)}
           />
         </>
+      ) : isSettingsOpen ? (
+        <>
+          <UserSettings 
+            currentUser={currentUser} 
+            onClose={() => setIsSettingsOpen(false)} 
+          />
+          <HomeRightSidebar 
+            friendRequests={friendRequests}
+            onNewChatClick={() => { setIsAddingChat(true); setIsSettingsOpen(false); }}
+            onRespondRequest={handleRespondRequest}
+            onSettingsClick={() => setIsSettingsOpen(true)}
+          />
+        </>
       ) : isAddingChat ? (
         <>
           <AddNewChat 
@@ -308,6 +331,7 @@ const Home = () => {
             friendRequests={friendRequests}
             onNewChatClick={() => setIsAddingChat(true)}
             onRespondRequest={handleRespondRequest}
+            onSettingsClick={() => setIsSettingsOpen(true)}
           />
         </>
       ) : (
@@ -317,6 +341,7 @@ const Home = () => {
             friendRequests={friendRequests}
             onNewChatClick={() => setIsAddingChat(true)}
             onRespondRequest={handleRespondRequest}
+            onSettingsClick={() => setIsSettingsOpen(true)}
           />
         </>
       )}

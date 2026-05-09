@@ -235,8 +235,7 @@ const ActiveChat = ({ activeChat, isOnline, isSearching, onCloseSearch, onCloseC
           </div>
         </div>
         <div className="flex items-center space-x-4 text-gray-400">
-          <button className="hover:text-brand-primary transition-colors cursor-pointer"><Phone className="h-5 w-5" /></button>
-          <button className="hover:text-brand-primary transition-colors cursor-pointer"><Video className="h-5 w-5" /></button>
+          
           <div className="relative" ref={menuRef}>
             <button
               onClick={() => setShowMenu(!showMenu)}

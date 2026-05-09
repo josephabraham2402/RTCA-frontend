@@ -39,7 +39,9 @@ const ManageMembersModal = ({ activeChat, friends, onClose, onUpdateGroup, curre
   };
 
   const isAdmin = (userId) => {
-      return activeChat.admin === userId || activeChat.admin?._id === userId;
+      if (!activeChat.admin) return false;
+      const adminId = typeof activeChat.admin === 'object' ? (activeChat.admin._id || activeChat.admin.id) : activeChat.admin;
+      return String(adminId) === String(userId);
   };
 
   return (
@@ -63,25 +65,29 @@ const ManageMembersModal = ({ activeChat, friends, onClose, onUpdateGroup, curre
             </h3>
             <div className="space-y-3">
               {activeChat.members.map(member => {
-                const isMemberAdmin = isAdmin(member._id || member);
-                const formatAvatarUrl = (url) => {
-                    if (!url) return 'https://via.placeholder.com/150';
-                    if (url.startsWith('http')) return url;
-                    return `http://localhost:5000${url}`;
+                const memberId = typeof member === 'object' ? (member._id || member.id) : member;
+                const isMemberAdmin = isAdmin(memberId);
+                const getAvatarUrl = (u) => {
+                    if (u?.avatar) {
+                        if (u.avatar.startsWith('http') || u.avatar.startsWith('blob')) return u.avatar;
+                        return `http://localhost:5000${u.avatar}`;
+                    }
+                    const name = u?.name || u?.email || 'U';
+                    return `https://ui-avatars.com/api/?name=${name.charAt(0)}&background=random`;
                 };
                 return (
-                  <div key={member._id || member} className="flex items-center justify-between">
+                  <div key={memberId} className="flex items-center justify-between">
                     <div className="flex items-center">
-                      <img src={formatAvatarUrl(member.avatar)} alt={member.name} className="h-10 w-10 rounded-full object-cover bg-gray-100" />
+                      <img src={getAvatarUrl(member)} alt={member?.name || 'Member'} className="h-10 w-10 rounded-full object-cover bg-gray-100" />
                       <div className="ml-3">
-                        <p className="text-sm font-medium text-gray-900">{member.name}</p>
+                        <p className="text-sm font-medium text-gray-900">{member?.name || 'Unknown User'}</p>
                         <p className="text-xs text-gray-500">{isMemberAdmin ? 'Admin' : 'Member'}</p>
                       </div>
                     </div>
                     {/* Admin can remove others, but cannot remove themselves */}
-                    {!isMemberAdmin && isAdmin(currentUser.id) && (
+                    {!isMemberAdmin && isAdmin(currentUser?.id) && (
                       <button 
-                        onClick={() => handleRemoveMember(member._id || member)}
+                        onClick={() => handleRemoveMember(memberId)}
                         disabled={isLoading}
                         className="text-red-500 hover:bg-red-50 p-2 rounded-full transition-colors cursor-pointer"
                         title="Remove Member"
@@ -115,7 +121,7 @@ const ManageMembersModal = ({ activeChat, friends, onClose, onUpdateGroup, curre
                 filteredFriends.map(friend => (
                   <div key={friend.id} className="flex items-center justify-between">
                     <div className="flex items-center">
-                      <img src={friend.avatar} alt={friend.name} className="h-10 w-10 rounded-full object-cover bg-gray-100" />
+                      <img src={friend.avatar || `https://ui-avatars.com/api/?name=${friend.name?.charAt(0)}&background=random`} alt={friend.name} className="h-10 w-10 rounded-full object-cover bg-gray-100" />
                       <div className="ml-3">
                         <p className="text-sm font-medium text-gray-900">{friend.name}</p>
                         <p className="text-xs text-gray-500">{friend.username}</p>

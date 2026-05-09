@@ -3,6 +3,12 @@ import { ArrowLeft, Search, Users, UserPlus, Plus, Globe, ChevronDown, Check } f
 import UserService from '../../Services/UserService';
 import MessageService from '../../Services/MessageService';
 
+const getAvatarUrl = (url) => {
+  if (!url) return '';
+  if (url.startsWith('http') || url.startsWith('blob')) return url;
+  return `http://localhost:5000${url}`;
+};
+
 const CreateGroupWizard = ({ onClose, onGroupCreated }) => {
   const [step, setStep] = useState(1);
   const [groupName, setGroupName] = useState('');
@@ -195,7 +201,7 @@ const CreateGroupWizard = ({ onClose, onGroupCreated }) => {
              {filteredUsers.map(user => (
                 <div key={user.id} className="flex items-center justify-between p-2 hover:bg-gray-50 rounded-xl transition-colors mb-2 cursor-pointer" onClick={() => toggleMember(user.id)}>
                   <div className="flex items-center">
-                    <img src={user.avatar} alt={user.name} className="h-12 w-12 rounded-full object-cover" />
+                    <img src={getAvatarUrl(user.avatar)} alt={user.name} className="h-12 w-12 rounded-full object-cover" />
                     <div className="ml-4">
                       <h4 className="text-sm font-semibold text-gray-900">{user.name}</h4>
                       <p className="text-xs text-gray-500">{user.username}</p>
@@ -252,7 +258,7 @@ const CreateGroupWizard = ({ onClose, onGroupCreated }) => {
                    </div>
                    {friends.filter(u => selectedMembers.includes(u.id)).map(user => (
                      <div key={user.id} className="flex flex-col items-center">
-                       <img src={user.avatar} title={user.name} alt={user.name} className="w-12 h-12 rounded-full object-cover shadow-sm mb-1" />
+                       <img src={getAvatarUrl(user.avatar)} title={user.name} alt={user.name} className="w-12 h-12 rounded-full object-cover shadow-sm mb-1" />
                        <span className="text-xs text-gray-600 truncate w-16 text-center">{user.name.split(' ')[0]}</span>
                      </div>
                    ))}
@@ -380,7 +386,7 @@ const AddNewChat = ({ onClose, onAddFriend, onGroupCreated, existingRequests }) 
                   {availableUsers.map(user => (
                     <div key={user.id} className="flex items-center justify-between p-2 hover:bg-gray-50 rounded-xl transition-colors">
                       <div className="flex items-center">
-                        <img src={user.avatar} alt={user.name} className="h-12 w-12 rounded-full object-cover" />
+                        <img src={getAvatarUrl(user.avatar)} alt={user.name} className="h-12 w-12 rounded-full object-cover" />
                         <div className="ml-4">
                           <h4 className="text-sm font-semibold text-gray-900">{user.name}</h4>
                           <p className="text-xs text-brand-primary">{user.username}</p>

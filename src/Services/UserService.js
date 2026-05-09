@@ -220,6 +220,60 @@ const UserService = {
       console.error("Error removing member:", error);
       throw error;
     }
+  },
+
+  updateProfile: async (profileData) => {
+    try {
+      const response = await fetch(`${API_URL}/profile`, {
+          method: 'PUT',
+          headers: getHeaders(),
+          body: JSON.stringify(profileData)
+      });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.message);
+      return data;
+    } catch (error) {
+      console.error("Error updating profile:", error);
+      throw error;
+    }
+  },
+
+  updatePassword: async (passwordData) => {
+    try {
+      const response = await fetch(`${API_URL}/password`, {
+          method: 'PUT',
+          headers: getHeaders(),
+          body: JSON.stringify(passwordData)
+      });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.message);
+      return data;
+    } catch (error) {
+      console.error("Error updating password:", error);
+      throw error;
+    }
+  },
+
+  uploadFile: async (file) => {
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+      
+      const token = sessionStorage.getItem("jwt");
+      const response = await fetch('http://localhost:5000/api/upload', {
+          method: 'POST',
+          headers: {
+              'Authorization': token ? `Bearer ${token}` : ''
+          },
+          body: formData
+      });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.message);
+      return data;
+    } catch (error) {
+      console.error("Error uploading file:", error);
+      throw error;
+    }
   }
 };
 
