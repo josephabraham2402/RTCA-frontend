@@ -10,11 +10,12 @@ import UserSettings from '../Components/Home/UserSettings';
 import UserService from '../Services/UserService';
 import SocketService from '../Services/SocketService';
 import AuthService from '../Services/AuthService';
+import { API_BASE_URL } from '../Services/apiConfig';
 
 const formatAvatarUrl = (url) => {
   if (!url) return '';
   if (url.startsWith('http')) return url;
-  return `http://localhost:5000${url}`;
+  return `${API_BASE_URL}${url}`;
 };
 
 const Home = () => {

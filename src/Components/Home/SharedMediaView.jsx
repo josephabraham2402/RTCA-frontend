@@ -3,6 +3,7 @@ import { ArrowLeft, Image as ImageIcon, FileText, Link as LinkIcon, Download } f
 import MessageService from '../../Services/MessageService';
 import AuthService from '../../Services/AuthService';
 import { decryptMessage } from '../../utils/encryption';
+import { API_BASE_URL } from '../../Services/apiConfig';
 
 const SharedMediaView = ({ activeChat, initialTab = 'all', onBack }) => {
   const [messages, setMessages] = useState([]);
@@ -104,14 +105,14 @@ const SharedMediaView = ({ activeChat, initialTab = 'all', onBack }) => {
                     {images.map(img => (
                       <a 
                         key={img._id} 
-                        href={`http://localhost:5000${img.fileUrl}`} 
+                        href={`${API_BASE_URL}${img.fileUrl}`} 
                         target="_blank" 
                         rel="noreferrer"
                         className="group relative aspect-square rounded-xl overflow-hidden bg-gray-200 border border-gray-200 shadow-sm hover:shadow-md transition-all"
                       >
                         <div 
                           className="w-full h-full bg-cover bg-center transition-transform group-hover:scale-105"
-                          style={{ backgroundImage: `url(http://localhost:5000${img.fileUrl})` }}
+                          style={{ backgroundImage: `url(${API_BASE_URL}${img.fileUrl})` }}
                         />
                         <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
                           <Download className="text-white h-6 w-6" />
@@ -134,7 +135,7 @@ const SharedMediaView = ({ activeChat, initialTab = 'all', onBack }) => {
                     {documents.map(doc => (
                       <a 
                         key={doc._id}
-                        href={`http://localhost:5000${doc.fileUrl}`} 
+                        href={`${API_BASE_URL}${doc.fileUrl}`} 
                         target="_blank" 
                         rel="noreferrer"
                         className="flex items-center justify-between p-4 bg-white border border-gray-200 rounded-xl hover:border-brand-primary hover:shadow-sm transition-all"

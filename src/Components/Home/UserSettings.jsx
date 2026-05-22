@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Camera, Save, ArrowLeft, Key, User, AtSign, Mail, AlertCircle, CheckCircle2 } from 'lucide-react';
 import UserService from '../../Services/UserService';
+import { API_BASE_URL } from '../../Services/apiConfig';
 
 const UserSettings = ({ onClose, currentUser }) => {
   const [name, setName] = useState(currentUser?.name || '');
@@ -18,7 +19,7 @@ const UserSettings = ({ onClose, currentUser }) => {
   const getAvatarUrl = (url) => {
     if (!url) return '';
     if (url.startsWith('http') || url.startsWith('blob')) return url;
-    return `http://localhost:5000${url}`;
+    return `${API_BASE_URL}${url}`;
   };
 
   const avatarUrl = previewUrl || getAvatarUrl(currentUser?.avatar) || "https://ui-avatars.com/api/?name=" + (currentUser?.email?.[0] || "U");

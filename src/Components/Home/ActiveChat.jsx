@@ -6,6 +6,7 @@ import SocketService from '../../Services/SocketService';
 import AuthService from '../../Services/AuthService';
 import { encryptMessage, decryptMessage } from '../../utils/encryption';
 import ManageMembersModal from './ManageMembersModal';
+import { API_BASE_URL } from '../../Services/apiConfig';
 
 const ActiveChat = ({ activeChat, isOnline, isSearching, onCloseSearch, onCloseChat, onRemoveFriend, onBlockUser, onDeleteGroup, friends, onUpdateGroup }) => {
   const [messages, setMessages] = useState([]);
@@ -382,9 +383,9 @@ const ActiveChat = ({ activeChat, isOnline, isSearching, onCloseSearch, onCloseC
                       {msg.fileUrl ? (
                         <div className="mb-1 bg-brand-primary rounded-br-sm rounded-2xl">
                           {msg.fileType && msg.fileType.startsWith('image/') ? (
-                            <img src={`http://localhost:5000${msg.fileUrl}`} alt="Attachment" className="max-w-full rounded-md object-cover max-h-60" />
+                            <img src={`${API_BASE_URL}${msg.fileUrl}`} alt="Attachment" className="max-w-full rounded-md object-cover max-h-60" />
                           ) : (
-                            <a href={`http://localhost:5000${msg.fileUrl}`} target="_blank" rel="noreferrer" className="flex items-center space-x-2 text-blue-100 px-3 py-2 rounded-md hover:bg-blue-600/30 transition-colors">
+                            <a href={`${API_BASE_URL}${msg.fileUrl}`} target="_blank" rel="noreferrer" className="flex items-center space-x-2 text-blue-100 px-3 py-2 rounded-md hover:bg-blue-600/30 transition-colors">
                               <FileText className="h-5 w-5" />
                               <span className="text-sm underline">{msg.fileName || 'Download File'}</span>
                             </a>

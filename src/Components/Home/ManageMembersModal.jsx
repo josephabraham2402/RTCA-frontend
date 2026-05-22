@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { X, Search, UserPlus, UserMinus } from 'lucide-react';
 import UserService from '../../Services/UserService';
+import { API_BASE_URL } from '../../Services/apiConfig';
 
 const ManageMembersModal = ({ activeChat, friends, onClose, onUpdateGroup, currentUser }) => {
   const [searchQuery, setSearchQuery] = useState('');
@@ -70,7 +71,7 @@ const ManageMembersModal = ({ activeChat, friends, onClose, onUpdateGroup, curre
                 const getAvatarUrl = (u) => {
                     if (u?.avatar) {
                         if (u.avatar.startsWith('http') || u.avatar.startsWith('blob')) return u.avatar;
-                        return `http://localhost:5000${u.avatar}`;
+                        return `${API_BASE_URL}${u.avatar}`;
                     }
                     const name = u?.name || u?.email || 'U';
                     return `https://ui-avatars.com/api/?name=${name.charAt(0)}&background=random`;

@@ -4,6 +4,7 @@ import MessageService from '../../Services/MessageService';
 import SocketService from '../../Services/SocketService';
 import AuthService from '../../Services/AuthService';
 import { decryptMessage } from '../../utils/encryption';
+import { API_BASE_URL } from '../../Services/apiConfig';
 
 const ChatDetailsSidebar = ({ activeChat, isOnline, isMuted, onClose, onViewMedia, onToggleMute, onSearchClick }) => {
   const [messages, setMessages] = useState([]);
@@ -110,7 +111,7 @@ const ChatDetailsSidebar = ({ activeChat, isOnline, isMuted, onClose, onViewMedi
           
           <div className="grid grid-cols-3 gap-2 mb-6">
             {images.slice(0, images.length > 3 ? 2 : 3).map((imgMsg, idx) => (
-               <a href={`http://localhost:5000${imgMsg.fileUrl}`} target="_blank" rel="noreferrer" key={imgMsg._id || idx} className="aspect-square bg-gray-200 rounded-lg cursor-pointer hover:opacity-80 transition-opacity bg-cover bg-center block" style={{backgroundImage: `url("http://localhost:5000${imgMsg.fileUrl}")`}}></a>
+               <a href={`${API_BASE_URL}${imgMsg.fileUrl}`} target="_blank" rel="noreferrer" key={imgMsg._id || idx} className="aspect-square bg-gray-200 rounded-lg cursor-pointer hover:opacity-80 transition-opacity bg-cover bg-center block" style={{backgroundImage: `url("${API_BASE_URL}${imgMsg.fileUrl}")`}}></a>
             ))}
             {images.length > 3 && (
                <div className="aspect-square bg-gray-100 border border-gray-200 rounded-lg cursor-pointer hover:bg-gray-200 transition-colors flex items-center justify-center text-xs font-medium text-gray-500 shadow-sm">+{images.length - 2}</div>

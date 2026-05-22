@@ -1,6 +1,7 @@
 import AuthService from './AuthService';
+import { API_BASE_URL } from './apiConfig';
 
-const API_URL = 'http://localhost:5000/api/users';
+const API_URL = `${API_BASE_URL}/api/users`;
 
 const getHeaders = () => {
     const token = sessionStorage.getItem("jwt");
@@ -148,7 +149,7 @@ const UserService = {
 
   createGroup: async (groupData) => {
     try {
-      const response = await fetch('http://localhost:5000/api/groups', {
+      const response = await fetch(`${API_BASE_URL}/api/groups`, {
           method: 'POST',
           headers: getHeaders(),
           body: JSON.stringify(groupData)
@@ -164,7 +165,7 @@ const UserService = {
 
   getGroups: async () => {
     try {
-      const response = await fetch('http://localhost:5000/api/groups', {
+      const response = await fetch(`${API_BASE_URL}/api/groups`, {
           headers: getHeaders()
       });
       const data = await response.json();
@@ -178,7 +179,7 @@ const UserService = {
 
   deleteGroup: async (groupId) => {
     try {
-      const response = await fetch(`http://localhost:5000/api/groups/${groupId}`, {
+      const response = await fetch(`${API_BASE_URL}/api/groups/${groupId}`, {
           method: 'DELETE',
           headers: getHeaders()
       });
@@ -193,7 +194,7 @@ const UserService = {
 
   addGroupMembers: async (groupId, members) => {
     try {
-      const response = await fetch(`http://localhost:5000/api/groups/${groupId}/members`, {
+      const response = await fetch(`${API_BASE_URL}/api/groups/${groupId}/members`, {
           method: 'POST',
           headers: getHeaders(),
           body: JSON.stringify({ members })
@@ -209,7 +210,7 @@ const UserService = {
 
   removeGroupMember: async (groupId, memberId) => {
     try {
-      const response = await fetch(`http://localhost:5000/api/groups/${groupId}/members/${memberId}`, {
+      const response = await fetch(`${API_BASE_URL}/api/groups/${groupId}/members/${memberId}`, {
           method: 'DELETE',
           headers: getHeaders()
       });
@@ -260,7 +261,7 @@ const UserService = {
       formData.append('file', file);
       
       const token = sessionStorage.getItem("jwt");
-      const response = await fetch('http://localhost:5000/api/upload', {
+      const response = await fetch(`${API_BASE_URL}/api/upload`, {
           method: 'POST',
           headers: {
               'Authorization': token ? `Bearer ${token}` : ''

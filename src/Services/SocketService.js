@@ -1,7 +1,8 @@
 import { io } from 'socket.io-client';
 import AuthService from './AuthService';
+import { API_BASE_URL } from './apiConfig';
 
-const SOCKET_URL = 'http://localhost:5000';
+const SOCKET_URL = API_BASE_URL;
 let socket = null;
 
 const SocketService = {

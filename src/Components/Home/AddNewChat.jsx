@@ -2,11 +2,12 @@ import React, { useState, useEffect, useRef } from 'react';
 import { ArrowLeft, Search, Users, UserPlus, Plus, Globe, ChevronDown, Check } from 'lucide-react';
 import UserService from '../../Services/UserService';
 import MessageService from '../../Services/MessageService';
+import { API_BASE_URL } from '../../Services/apiConfig';
 
 const getAvatarUrl = (url) => {
   if (!url) return '';
   if (url.startsWith('http') || url.startsWith('blob')) return url;
-  return `http://localhost:5000${url}`;
+  return `${API_BASE_URL}${url}`;
 };
 
 const CreateGroupWizard = ({ onClose, onGroupCreated }) => {
